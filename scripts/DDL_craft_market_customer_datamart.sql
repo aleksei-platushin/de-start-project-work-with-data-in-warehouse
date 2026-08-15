@@ -53,3 +53,14 @@ COMMENT ON COLUMN dwh.customer_report_datamart.count_order_delivery IS 'Коли
 COMMENT ON COLUMN dwh.customer_report_datamart.count_order_done IS 'Количество завершённых заказов (со статусом done) за месяц';
 COMMENT ON COLUMN dwh.customer_report_datamart.count_order_not_done IS 'Количество незавершённых заказов (со статусом != done) за месяц';
 COMMENT ON COLUMN dwh.customer_report_datamart.report_period IS 'Отчётный период (формат YYYY-MM)';
+
+-- 4. Инициализация таблицы логов стартовым значением (Техническая доработка)
+/* 
+  ВАЖНО: Принудительно добавляем «нулевую» точку отсчета в таблицу логов.
+  Это необходимо, чтобы при самом первом запуске скрипта обновления витрины 
+  подзапрос (SELECT MAX(load_dttm) ...) не возвращал пустой NULL, из-за которого дельта отсекается.
+  Значение '1900-01-01' гарантирует, что первый инкрементальный расчет успешно заберет абсолютно все 
+  исторические данные, накопленные в хранилище DWH на текущий момент.
+*/
+INSERT INTO dwh.load_dates_customer_report_datamart (load_dttm)
+VALUES ('1900-01-01 00:00:00'::timestamp);
